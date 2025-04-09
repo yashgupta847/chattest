@@ -12,6 +12,7 @@ const ChatPage = ({ room, myId }) => {
 
     socket.on("receive_message", (data) => {
       setChat((prev) => [...prev, data]);
+      console.log("message is recieved", data)
     });
 
     return () => {
@@ -25,6 +26,7 @@ const ChatPage = ({ room, myId }) => {
       socket.emit("send_message", data);
       setChat((prev) => [...prev, data]);
       setMessage("");
+      console.log("message is sent",data)
     }
   };
 
