@@ -52,14 +52,15 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
   const sendMessage = () => {
     if (message.trim()) {
       const data = { room, message, sender: myId, timestamp: new Date().toISOString() };
-      socket.emit("send_message", data); // server will send it back
+      socket.emit("send_message", data);
+      setChat((prev) => [...prev, data]);
       setMessage("");
     }
   };
-  
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
