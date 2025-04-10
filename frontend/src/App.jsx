@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaComment, FaPaperPlane } from 'react-icons/fa';
-import ChatPage from './ChatPage'; // Make sure this is imported
+import ChatPage from './ChatPage';
 
 const App = () => {
   const [myId, setMyId] = useState("");
@@ -22,7 +22,14 @@ const App = () => {
   };
 
   if (chatStarted) {
-    return <ChatPage room={room} myId={myId} />;
+    return (
+      <ChatPage 
+        room={room} 
+        myId={myId} 
+        friendId={friendId}
+        onBack={() => setChatStarted(false)} 
+      />
+    );
   }
 
   return (
