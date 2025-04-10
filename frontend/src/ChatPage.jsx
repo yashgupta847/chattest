@@ -52,15 +52,14 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   const sendMessage = () => {
     if (message.trim()) {
       const data = { room, message, sender: myId, timestamp: new Date().toISOString() };
-      socket.emit("send_message", data);
-      setChat((prev) => [...prev, data]);
+      socket.emit("send_message", data); // server will send it back
       setMessage("");
     }
   };
+  
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -69,11 +68,11 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     }
   };
 
-  const formatTime = (timestamp) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  // const formatTime = (timestamp) => {
+  //   if (!timestamp) return '';
+  //   const date = new Date(timestamp);
+  //   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // };
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-900 to-purple-900">
@@ -159,5 +158,4 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     </div>
   );
 };
-
 export default ChatPage;
