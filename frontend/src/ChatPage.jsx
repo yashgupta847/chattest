@@ -14,7 +14,8 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
 
   useEffect(() => {
     socket.emit("join_room", room);
-    socket.emit("check_online_status", friendId);
+    socket.emit("user_connected", myId); // ✅ Notify server this user is online
+    socket.emit("check_online_status", friendId); // ✅ Check friend status
 
     socket.on("receive_message", (data) => {
       setChat((prev) => [...prev, data]);
@@ -29,21 +30,20 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
       if (id === friendId) setIsOnline(false);
     });
 
-    const typingTimer = setInterval(() => {
-      const shouldShowTyping = Math.random() > 0.7;
-      if (shouldShowTyping && chat.length > 0 && chat[chat.length - 1].sender === myId) {
-        setIsTyping(true);
-        setTimeout(() => setIsTyping(false), 3000);
-      }
-    }, 10000);
+    const handleBeforeUnload = () => {
+      socket.emit("user_disconnected", myId); // ✅ Emit on tab close
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
+      socket.emit("user_disconnected", myId); // ✅ Emit on component unmount
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       socket.off("receive_message");
       socket.off("user_online");
       socket.off("user_offline");
-      clearInterval(typingTimer);
     };
-  }, [room, chat, myId, friendId]);
+  }, [room, myId, friendId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -57,7 +57,6 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     if (message.trim()) {
       const data = { room, message, sender: myId, timestamp: new Date().toISOString() };
       socket.emit("send_message", data);
-      // setChat((prev) => [...prev, data]);
       setMessage("");
     }
   };
@@ -159,4 +158,5 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     </div>
   );
 };
+
 export default ChatPage;
