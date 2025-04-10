@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { FaArrowLeft, FaPaperPlane, FaUserCircle } from 'react-icons/fa';
 
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 const ChatPage = ({ room, myId, friendId, onBack }) => {
   const [message, setMessage] = useState("");
@@ -14,8 +14,8 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
 
   useEffect(() => {
     socket.emit("join_room", room);
-    socket.emit("user_connected", myId); // ✅ Notify server this user is online
-    socket.emit("check_online_status", friendId); // ✅ Check friend status
+    socket.emit("user_connected", myId); // Notify server this user is online
+    socket.emit("check_online_status", friendId); // Ask server if friend is online
 
     socket.on("receive_message", (data) => {
       setChat((prev) => [...prev, data]);
@@ -31,13 +31,13 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     });
 
     const handleBeforeUnload = () => {
-      socket.emit("user_disconnected", myId); // ✅ Emit on tab close
+      socket.emit("user_disconnected", myId); // On refresh/tab close
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      socket.emit("user_disconnected", myId); // ✅ Emit on component unmount
+      socket.emit("user_disconnected", myId); // On component unmount
       window.removeEventListener("beforeunload", handleBeforeUnload);
       socket.off("receive_message");
       socket.off("user_online");
@@ -76,6 +76,7 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-900 to-purple-900">
+      {/* Header */}
       <div className="p-4 bg-white/10 backdrop-blur-md border-b border-white/20 flex items-center">
         <button 
           onClick={onBack}
@@ -86,15 +87,16 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
         <div className="flex items-center">
           <div className="relative">
             <FaUserCircle className="text-3xl text-white/80" />
-            <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-500'} border-2 border-indigo-900`}></div>
+            <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-indigo-900 ${isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></div>
           </div>
           <div className="ml-3">
-            <h2 className="font-bold">{friendId || 'Friend'}</h2>
+            <h2 className="font-bold text-white">{friendId || 'Friend'}</h2>
             <p className="text-xs text-white/60">{isOnline ? 'Online' : 'Offline'}</p>
           </div>
         </div>
       </div>
 
+      {/* Chat Messages */}
       <div 
         ref={messageContainerRef}
         className="flex-1 p-4 overflow-y-auto" 
@@ -110,8 +112,8 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
                 className={`message-bubble ${
                   msg.sender === myId 
                     ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white' 
-                    : 'bg-white/20 backdrop-blur-sm'
-                }`}
+                    : 'bg-white/20 backdrop-blur-sm text-white'
+                } p-2 rounded-xl max-w-xs`}
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className="flex flex-col">
@@ -121,10 +123,10 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
               </div>
             </div>
           ))}
-          
+
           {isTyping && (
             <div className="flex justify-start">
-              <div className="message-bubble bg-white/20 backdrop-blur-sm">
+              <div className="message-bubble bg-white/20 backdrop-blur-sm p-2 rounded-xl">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 rounded-full bg-white/70 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 rounded-full bg-white/70 animate-bounce" style={{ animationDelay: '200ms' }}></div>
@@ -133,10 +135,12 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
               </div>
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
 
+      {/* Input */}
       <div className="p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
         <div className="flex items-center">
           <textarea
@@ -144,7 +148,7 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
-            className="input-field py-2 min-h-[44px] max-h-32 resize-none"
+            className="input-field py-2 px-3 min-h-[44px] max-h-32 resize-none flex-1 rounded-lg bg-white/10 text-white placeholder-white/60"
             rows={1}
           />
           <button 
