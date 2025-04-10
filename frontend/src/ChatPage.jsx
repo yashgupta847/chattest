@@ -69,11 +69,11 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     }
   };
 
-  // const formatTime = (timestamp) => {
-  //   if (!timestamp) return '';
-  //   const date = new Date(timestamp);
-  //   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  // };
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-900 to-purple-900">
