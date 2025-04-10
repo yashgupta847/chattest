@@ -8,19 +8,27 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [isOnline, setIsOnline] = useState(true); // Simulating online status
+  const [isOnline, setIsOnline] = useState(false);
   const messagesEndRef = useRef(null);
   const messageContainerRef = useRef(null);
 
   useEffect(() => {
     socket.emit("join_room", room);
+    socket.emit("check_online_status", friendId);
 
     socket.on("receive_message", (data) => {
       setChat((prev) => [...prev, data]);
       setIsTyping(false);
     });
 
-    // Simulating typing indicator
+    socket.on("user_online", (id) => {
+      if (id === friendId) setIsOnline(true);
+    });
+
+    socket.on("user_offline", (id) => {
+      if (id === friendId) setIsOnline(false);
+    });
+
     const typingTimer = setInterval(() => {
       const shouldShowTyping = Math.random() > 0.7;
       if (shouldShowTyping && chat.length > 0 && chat[chat.length - 1].sender === myId) {
@@ -31,11 +39,12 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
 
     return () => {
       socket.off("receive_message");
+      socket.off("user_online");
+      socket.off("user_offline");
       clearInterval(typingTimer);
     };
-  }, [room, chat, myId]);
+  }, [room, chat, myId, friendId]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [chat, isTyping]);
@@ -68,7 +77,6 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-900 to-purple-900">
-      {/* Header */}
       <div className="p-4 bg-white/10 backdrop-blur-md border-b border-white/20 flex items-center">
         <button 
           onClick={onBack}
@@ -88,7 +96,6 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
         </div>
       </div>
 
-      {/* Chat Messages */}
       <div 
         ref={messageContainerRef}
         className="flex-1 p-4 overflow-y-auto" 
@@ -131,7 +138,6 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
         </div>
       </div>
 
-      {/* Message Input */}
       <div className="p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
         <div className="flex items-center">
           <textarea
