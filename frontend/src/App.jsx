@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FaComment, FaPaperPlane } from 'react-icons/fa';
+import ChatPage from './ChatPage'; // Make sure this is imported
 
 const App = () => {
   const [myId, setMyId] = useState("");
   const [friendId, setFriendId] = useState("");
   const [room, setRoom] = useState("");
   const [chatStarted, setChatStarted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const joinRoom = () => {
     if (myId && friendId) {
       const sortedRoom = [myId, friendId].sort().join("_");
       setRoom(sortedRoom);
       setChatStarted(true);
+      setError("");
+    } else {
+      setError("Please enter both IDs");
     }
   };
 
@@ -19,60 +26,45 @@ const App = () => {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Enter Chat IDs</h2>
-      <input placeholder="Your ID" onChange={(e) => setMyId(e.target.value)} />
-      <br /><br />
-      <input placeholder="Friend's ID" onChange={(e) => setFriendId(e.target.value)} />
-      <br /><br />
-      <button onClick={joinRoom}>Start Chat</button>
-    </div>
-  );
-};
-
-// export default App;
-
-
-  return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
         <div className="flex items-center justify-center mb-8">
           <FaComment className="text-5xl text-gradient bg-gradient-to-r from-purple-500 to-pink-500" />
           <h1 className="text-3xl font-bold ml-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">ChatVibe</h1>
         </div>
-        
+
         <h2 className="text-2xl font-bold mb-6 text-center">Join the conversation</h2>
-        
+
         {error && (
           <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-center text-white">
             {error}
           </div>
         )}
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1 text-white/80">Your ID</label>
-            <input 
+            <input
               type="text"
-              placeholder="Enter your username" 
+              placeholder="Enter your username"
               className="input-field"
-              onChange={(e) => setMyId(e.target.value)} 
+              onChange={(e) => setMyId(e.target.value)}
               value={myId}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-1 text-white/80">Friend's ID</label>
-            <input 
+            <input
               type="text"
-              placeholder="Who do you want to chat with?" 
+              placeholder="Who do you want to chat with?"
               className="input-field"
-              onChange={(e) => setFriendId(e.target.value)} 
+              onChange={(e) => setFriendId(e.target.value)}
               value={friendId}
             />
           </div>
-          
-          <button 
+
+          <button
             className="btn btn-primary w-full mt-6 flex items-center justify-center"
             onClick={joinRoom}
             disabled={loading}
@@ -95,7 +87,6 @@ const App = () => {
       </div>
     </div>
   );
-
+};
 
 export default App;
-
