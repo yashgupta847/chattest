@@ -22,6 +22,7 @@ const UserList = ({ users = [], onSelect = () => {} }) => {
           <p className="text-center text-white/60">No users available</p>
         )}
       </div>
+      
     </div>
   );
 };
