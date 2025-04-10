@@ -57,7 +57,7 @@ const ChatPage = ({ room, myId, friendId, onBack }) => {
     if (message.trim()) {
       const data = { room, message, sender: myId, timestamp: new Date().toISOString() };
       socket.emit("send_message", data);
-      setChat((prev) => [...prev, data]);
+      // setChat((prev) => [...prev, data]);
       setMessage("");
     }
   };
